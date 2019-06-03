@@ -2,7 +2,7 @@ const path = require('path')
 const express = require('express')
 const hbs = require('hbs')
 
-const geocode = require('./utils/geocode')
+const { geocode, reverseGeocode } = require('./utils/geocode')
 const forecast = require('./utils/forecast')
 
 const app = express()
@@ -64,6 +64,38 @@ app.get('/weather', (req, res) => {
                 forecast: forecastData,
                 location,
                 address: req.query.address
+            })
+        })
+    })
+})
+
+app.get('/weather-by-cordinates', (req, res) => {
+    if (!req.query.latitude || !req.query.longitude) {
+        return res.send({
+            error: 'Cordinates are required. Please provide provide them!'
+        })
+    }
+
+    const cordinates = {
+        latitude: req.query.latitude,
+        longitude: req.query.longitude
+    }
+
+    reverseGeocode(cordinates, (error, { longitude, latitude, location } = {}) => {
+        if (error) {
+            return res.send({error})
+        }
+        console.log(longitude, latitude, location);
+        forecast(latitude, longitude, (error, forecastData) => {
+            if (error) {
+                return res.send({
+                    error
+                })
+            }
+
+            res.send({
+                forecast: forecastData,
+                location
             })
         })
     })
