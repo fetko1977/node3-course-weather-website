@@ -53,3 +53,7 @@ button {
     padding: 8px;
     outline: none;
 }
+
+#get-location {
+    margin: 5px 0 0;
+}
